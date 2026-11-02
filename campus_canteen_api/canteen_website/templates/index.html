@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Campus Canteen</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="container">
+        <header>
+            <p class="eyebrow">CAMPUS FOOD SERVICE</p>
+            <h1>Campus Canteen <span aria-hidden="true">🍔</span></h1>
+            <p class="subtitle">Good food, brighter days.</p>
+        </header>
+
+        {% if error %}
+            <div class="message error" role="alert">{{ error }}</div>
+        {% endif %}
+
+        <section class="menu-section">
+            <h2>Today's Menu</h2>
+            {% if menu %}
+                <ul class="menu-list">
+                    {% for item, price in menu.items() %}
+                        <li><span>{{ item }}</span><strong>₹{{ price }}</strong></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>The menu is currently unavailable.</p>
+            {% endif %}
+        </section>
+
+        <section class="order-section">
+            <h2>Place Your Order</h2>
+            <form action="{{ url_for('order') }}" method="POST">
+                <label for="item">Choose an item</label>
+                <select name="item" id="item" required {% if not menu %}disabled{% endif %}>
+                    {% for item in menu.keys() %}
+                        <option value="{{ item }}">{{ item }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="quantity">Quantity</label>
+                <input type="number" name="quantity" id="quantity"
+                       value="1" min="1" step="1" required>
+
+                <button type="submit" {% if not menu %}disabled{% endif %}>Place Order</button>
+            </form>
+        </section>
+
+        {% if result %}
+            <section class="result-section" aria-live="polite">
+                <p class="success-label">ORDER CONFIRMED</p>
+                <h2>Thanks for your order!</h2>
+                <div class="receipt-row"><span>Order ID</span><strong>#{{ result.order_id }}</strong></div>
+                <div class="receipt-row"><span>Item</span><strong>{{ result.item }} × {{ result.quantity }}</strong></div>
+                <div class="receipt-row"><span>Unit price</span><strong>₹{{ result.unit_price }}</strong></div>
+                <div class="receipt-row total"><span>Total</span><strong>₹{{ result.total }}</strong></div>
+                <p class="status">{{ result.status }}</p>
+            </section>
+        {% endif %}
+
+        <footer>Demo project · Python + Flask REST API</footer>
+    </main>
+</body>
+</html>
